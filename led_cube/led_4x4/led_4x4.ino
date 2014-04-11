@@ -2,11 +2,12 @@ int led = 13;
 int colCount = 16;
 int rowCount = 4;
 int multiplexDelay = 300;
-int frameDelay = 512;
+int frameDelay = 100;
+//int frameDelay = 512;
 float timeCounter = 0;
 
 int frameCount = 3;
-int ledsPerFrame[3] = {8,32,8};
+//int ledsPerFrame[3] = {8,32,8};
 boolean frames[3][4][4][4] = 
   {
     //1
@@ -231,12 +232,13 @@ void loop() {
     
     while(timeCounter<frameDelay) {
       renderFrame(frames[f]);
-      int increment = ledsPerFrame[f]/frameDelay;
-      Serial.print(increment);
-      Serial.print("\n");
-      timeCounter+=increment;
-      Serial.print(timeCounter);
-      Serial.print("\n");
+      timeCounter++;
+//      int increment = ledsPerFrame[f]/frameDelay;
+//      Serial.print(increment);
+//      Serial.print("\n");
+//      timeCounter+=increment;
+//      Serial.print(timeCounter);
+//      Serial.print("\n");
     }
     
     timeCounter=0;
