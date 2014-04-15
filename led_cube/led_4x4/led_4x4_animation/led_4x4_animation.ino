@@ -1,13 +1,12 @@
 int led = 13;
 int colCount = 16;
 int rowCount = 4;
-int multiplexDelay = 125;
-int frameDelay = 50;
+int multiplexDelay = 100;
+int frameDelay = 25;
 float timeCounter = 0;
 
-int frameCount = 3;
-int ledsPerFrame[3] = {8,32,8};
-boolean frames[3][4][4][4] = 
+int frameCount = 4;
+boolean frames[4][4][4][4] = 
   {
     //1
     {
@@ -88,6 +87,33 @@ boolean frames[3][4][4][4] =
         {0, 0, 0, 0},
         {0, 0, 0, 0},
         {1, 0, 0, 1}
+      }
+    },
+     //2
+    {
+      {
+        {1, 1, 1, 1},
+        {1, 0, 0, 1},
+        {1, 0, 0, 1},
+        {1, 1, 1, 1}
+      },
+      {
+        {1, 0, 0, 1},
+        {0, 0, 0, 0},
+        {0, 0, 0, 0},
+        {1, 0, 0, 1}
+      },
+      {
+        {1, 0, 0, 1},
+        {0, 0, 0, 0},
+        {0, 0, 0, 0},
+        {1, 0, 0, 1}
+      },
+      {
+        {1, 1, 1, 1},
+        {1, 0, 0, 1},
+        {1, 0, 0, 1},
+        {1, 1, 1, 1}
       }
     }
   };

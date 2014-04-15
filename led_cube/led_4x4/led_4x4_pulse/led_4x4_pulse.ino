@@ -1,21 +1,24 @@
-int led = 13;
 int colCount = 16;
 int rowCount = 4;
-int multiplexDelay = 300;
-int dropDelay = 125;
+
+int delayMin = 1;
+int delayMax = 1;
+int delayInterval = 50;
+
+int onDelay = 50;
+int offDelay = 100;
 
 
 // the setup routine runs once when you press reset:
 void setup() {                
-
+  
   // initialize the digital pin as an output.
-  for (int i=0;i<14;i++) {
+  for (int i=0;i<=13;i++) {
     pinMode(i, OUTPUT);     
   }
 
   pinMode(A0, OUTPUT);     
   pinMode(A1, OUTPUT);  
-  
   pinMode(A2, OUTPUT);   
   pinMode(A3, OUTPUT);   
   pinMode(A4, OUTPUT);   
@@ -31,7 +34,7 @@ void setPin(int pin, boolean output) {
   // 16  17  18   19
   // D6  D9  D10  D11
   
-   if (pin <=5) {
+   if (pin>=0 && pin<=5) {
      if (output){
        digitalWrite(pin,HIGH);
      } else {
@@ -127,31 +130,12 @@ void setPin(int pin, boolean output) {
    
 }
 
-
-void singleOn(int col, int row, int wait) {
-   for (int i=0;i<colCount;i++) {
-     if (col==i) {
-       setPin(i,false);
-     } else {
-       setPin(i,true); 
-     }
-   }
-   
-   for (int i=0;i<rowCount;i++) {
-     if (row+colCount==i+colCount) {
-       setPin(i+colCount,true);
-     } else {
-       setPin(i+colCount,false);
-     }
-   }
-   
-   delayMicroseconds(wait);
-}
-
 void setAllCol(boolean setting) {
-  for (int i=0;i<colCount;i++) {
-    setPin(i,setting);    
+  
+  for (int c=0;c<colCount;c++) {
+    setPin(c,setting); 
   }
+  
 };
 
 void setAllRow(boolean setting) {
@@ -170,26 +154,57 @@ void allOff() {
   setAllRow(false);
 }
 
-void dropThroughColumn(int col,int dropDelay) {
-  allOff();
+  // http://arduino.cc/en/Tutorial/PWM
+  // http://arduino.cc/en/Reference/analogWrite
   
-  for (int row=3;row>=0;row--) {
-      singleOn(col,row,dropDelay-1);
-      delay(dropDelay);
-  }
-}
+  // PWM only works on digital pins 0-13
+  // PWM pins on ATmega238 are 3, 5, 6, 9, 10, 11
+  // PWM pins on ATmega8 are 9, 10, 11
 
-void rainDrops() {
+void fadeAllOn() {
   
-  // random column
-  // http://arduino.cc/en/Reference/Random
+  //int fadeDelay = random(delayMin*delayInterval,delayMax*delayInterval);
+   int fadeDelay = 1;
   
-  int col = random(0,16);
-  dropThroughColumn(col,dropDelay);
+  setAllCol(false);
   
+  for(int fadeValue = 0 ; fadeValue <= 255; fadeValue+=1) { 
+  
+    analogWrite(6,fadeValue);
+    analogWrite(9,fadeValue);
+    analogWrite(10,fadeValue);
+    analogWrite(11,fadeValue);
+      
+    delay(fadeDelay);                            
+  } 
+  
+
+}
+void fadeAllOff() {
+  
+  //int fadeDelay = random(delayMin*delayInterval,delayMax*delayInterval);
+  int fadeDelay = 1;
+  
+    setAllCol(false);
+    
+    for(int fadeValue = 255 ; fadeValue > 0; fadeValue-=1) { 
+    analogWrite(6,fadeValue);
+    analogWrite(9,fadeValue);
+    analogWrite(10,fadeValue);
+    analogWrite(11,fadeValue);
+    
+    delay(fadeDelay);                            
+  } 
+
 }
 
 void loop() {
-
-  rainDrops();
+  
+  fadeAllOn();
+  allOn();
+  delay(onDelay);
+  fadeAllOff();
+  allOff();
+  delay(offDelay);
+  
 }

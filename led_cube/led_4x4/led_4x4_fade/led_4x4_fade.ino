@@ -1,5 +1,6 @@
 int colCount = 16;
 int rowCount = 4;
+int fadeDelay = 5;
 
 // the setup routine runs once when you press reset:
 void setup() {                
@@ -167,5 +168,5 @@ void loop() {
   
   int col = random(0,16);
   
-  fadeCol(col,25);
+  fadeCol(col,fadeDelay);
 }
