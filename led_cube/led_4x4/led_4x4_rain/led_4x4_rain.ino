@@ -1,16 +1,20 @@
+int led = 13;
 int colCount = 16;
 int rowCount = 4;
+int multiplexDelay = 300;
+
 
 // the setup routine runs once when you press reset:
 void setup() {                
-  
+
   // initialize the digital pin as an output.
-  for (int i=0;i<=13;i++) {
+  for (int i=0;i<14;i++) {
     pinMode(i, OUTPUT);     
   }
 
   pinMode(A0, OUTPUT);     
   pinMode(A1, OUTPUT);  
+  
   pinMode(A2, OUTPUT);   
   pinMode(A3, OUTPUT);   
   pinMode(A4, OUTPUT);   
@@ -26,7 +30,7 @@ void setPin(int pin, boolean output) {
   // 16  17  18   19
   // D6  D9  D10  D11
   
-   if (pin>=0 && pin<=5) {
+   if (pin <=5) {
      if (output){
        digitalWrite(pin,HIGH);
      } else {
@@ -122,50 +126,69 @@ void setPin(int pin, boolean output) {
    
 }
 
+
+void singleOn(int col, int row, int wait) {
+   for (int i=0;i<colCount;i++) {
+     if (col==i) {
+       setPin(i,false);
+     } else {
+       setPin(i,true); 
+     }
+   }
+   
+   for (int i=0;i<rowCount;i++) {
+     if (row+colCount==i+colCount) {
+       setPin(i+colCount,true);
+     } else {
+       setPin(i+colCount,false);
+     }
+   }
+   
+   delayMicroseconds(wait);
+}
+
 void setAllCol(boolean setting) {
-  
-  for (int c=0;c<colCount;c++) {
-    setPin(c,setting); 
+  for (int i=0;i<colCount;i++) {
+    setPin(i,setting);    
   }
-  
 };
 
-void fadeCol(int col,int fadeDelay) {
-  
-  // http://arduino.cc/en/Tutorial/PWM
-  // http://arduino.cc/en/Reference/analogWrite
-  
-  // PWM only works on digital pins 0-13
-  // PWM pins on ATmega238 are 3, 5, 6, 9, 10, 11
-  // PWM pins on ATmega8 are 9, 10, 11
-  
-  setPin(col,false);
-  
-  for(int fadeValue = 0 ; fadeValue <= 255; fadeValue+=5) { 
-  
-    analogWrite(6,fadeValue);
-    analogWrite(9,fadeValue);
-    analogWrite(10,fadeValue);
-    analogWrite(11,fadeValue);
-      
-    delay(fadeDelay);                            
-  } 
-  
-  for(int fadeValue = 255 ; fadeValue > 0; fadeValue-=5) { 
-    analogWrite(6,fadeValue);
-    analogWrite(9,fadeValue);
-    analogWrite(10,fadeValue);
-    analogWrite(11,fadeValue);
-    
-    delay(fadeDelay);                            
-  } 
+void setAllRow(boolean setting) {
+  for (int i=0;i<rowCount;i++) {
+    setPin(i+colCount,setting);    
+  }
+}
 
+void allOn() {
+  setAllCol(false);
+  setAllRow(true);
+}
+
+void allOff() {
+  setAllCol(true);
+  setAllRow(false);
+}
+
+void dropThroughColumn(int col,int dropDelay) {
+  allOff();
+  
+  for (int row=3;row>=0;row--) {
+      singleOn(col,row,dropDelay-1);
+      delay(dropDelay);
+  }
+}
+
+void rainDrops() {
+  
+  // random column
+  // http://arduino.cc/en/Reference/Random
+  
+  int col = random(0,16);
+  dropThroughColumn(col,100);
+  
 }
 
 void loop() {
-  setAllCol(true);
-  
-  int col = random(0,16);
-  
-  fadeCol(col,25);
+
+  rainDrops();
 }
