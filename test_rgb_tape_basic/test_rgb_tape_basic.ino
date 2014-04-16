@@ -1,7 +1,7 @@
 #include <FastSPI_LED.h>
 
 //#define NUM_LEDS 150
-#define NUM_LEDS 288
+#define NUM_LEDS 144
 // Sometimes chipsets wire in a backwards sort of way
 struct CRGB { unsigned char b; unsigned char r; unsigned char g; };
 // struct CRGB { unsigned char r; unsigned char g; unsigned char b; };
@@ -32,7 +32,7 @@ void loop() {
   //run all animations through various palettes of 3 colors
   int NUM_PALETTES = 3;
   
-  int maxbr = 20;
+  int maxbr = 10;
   //color palettes
   /*
   array cube_matrix[3][3][3] = [
@@ -54,7 +54,7 @@ void loop() {
   ];
   */
   for (int p = 0; p < NUM_PALETTES; p++) {  
-  
+  /*
   // one at a time
   for(int j = 0; j < 3; j++) { 
     
@@ -106,6 +106,7 @@ void loop() {
       delay(1);
     }
   }
+  */
   
   // Fade in/fade out
     //repeat r times
