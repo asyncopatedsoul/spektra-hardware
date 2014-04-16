@@ -3,8 +3,9 @@ int rowCount = 4;
 
 int delayMin = 1;
 int delayMax = 1;
-int delayInterval = 50;
+int delayMultiple = 1;
 
+int fadeStep = 1;
 int onDelay = 50;
 int offDelay = 100;
 
@@ -12,11 +13,12 @@ int offDelay = 100;
 // the setup routine runs once when you press reset:
 void setup() {                
   
-  // initialize the digital pin as an output.
+  // initialize all digitals pin as outputs
   for (int i=0;i<=13;i++) {
     pinMode(i, OUTPUT);     
   }
-
+  
+  // initialize all analog pins as outputs
   pinMode(A0, OUTPUT);     
   pinMode(A1, OUTPUT);  
   pinMode(A2, OUTPUT);   
@@ -157,14 +159,12 @@ void allOff() {
   // http://arduino.cc/en/Tutorial/PWM
   // http://arduino.cc/en/Reference/analogWrite
   
-  // PWM only works on digital pins 0-13
   // PWM pins on ATmega238 are 3, 5, 6, 9, 10, 11
   // PWM pins on ATmega8 are 9, 10, 11
 
 void fadeAllOn() {
   
-  //int fadeDelay = random(delayMin*delayInterval,delayMax*delayInterval);
-   int fadeDelay = 1;
+  int fadeDelay = random(delayMin*delayMultiple,delayMax*delayMultiple);
   
   setAllCol(false);
   
@@ -182,12 +182,11 @@ void fadeAllOn() {
 }
 void fadeAllOff() {
   
-  //int fadeDelay = random(delayMin*delayInterval,delayMax*delayInterval);
-  int fadeDelay = 1;
+  int fadeDelay = random(delayMin*delayMultiple,delayMax*delayMultiple);
   
-    setAllCol(false);
+  setAllCol(false);
     
-    for(int fadeValue = 255 ; fadeValue > 0; fadeValue-=1) { 
+  for(int fadeValue = 255 ; fadeValue > 0; fadeValue-=1) { 
     analogWrite(6,fadeValue);
     analogWrite(9,fadeValue);
     analogWrite(10,fadeValue);

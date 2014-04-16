@@ -1,7 +1,7 @@
 int led = 13;
 int colCount = 16;
 int rowCount = 4;
-int multiplexDelay = 300;
+
 int dropDelay = 125;
 
 
@@ -192,4 +192,5 @@ void rainDrops() {
 void loop() {
 
   rainDrops();
+
 }
