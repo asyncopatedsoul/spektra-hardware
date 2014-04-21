@@ -44,58 +44,61 @@ void setup()
 
 
 void setCol(int pin, boolean output) {
+  int s = 0;
+  if (pin>=8 && pin <15) {
+    s = 1;
+  } else if (pin>=16 && pin <23) {
+    s = 2;
+  } else {
+     digitalWrite(lastCol,output);
+  }
   //0 - 7
+  //8 - 15
+  //16 - 23
+  //24
   switch (pin) {
     
     case 0:
-      digitalWrite(selC[0], LOW);
-      digitalWrite(selB[0], LOW);
-      digitalWrite(selA[0], LOW);
+      digitalWrite(selC[s], LOW);
+      digitalWrite(selB[s], LOW);
+      digitalWrite(selA[s], LOW);
       break;
     case 1:
-      digitalWrite(selC[0], LOW);
-      digitalWrite(selB[0], LOW);
-      digitalWrite(selA[0], HIGH);
+      digitalWrite(selC[s], LOW);
+      digitalWrite(selB[s], LOW);
+      digitalWrite(selA[s], HIGH);
       break;
     case 2:
-      digitalWrite(selC[0], LOW);
-      digitalWrite(selB[0], HIGH);
-      digitalWrite(selA[0], LOW);
+      digitalWrite(selC[s], LOW);
+      digitalWrite(selB[s], HIGH);
+      digitalWrite(selA[s], LOW);
       break;
     case 3:
-      digitalWrite(selC[0], LOW);
-      digitalWrite(selB[0], HIGH);
-      digitalWrite(selA[0], HIGH);
+      digitalWrite(selC[s], LOW);
+      digitalWrite(selB[s], HIGH);
+      digitalWrite(selA[s], HIGH);
       break;
     case 4:
-      digitalWrite(selC[0], HIGH);
-      digitalWrite(selB[0], LOW);
-      digitalWrite(selA[0], LOW);
+      digitalWrite(selC[s], HIGH);
+      digitalWrite(selB[s], LOW);
+      digitalWrite(selA[s], LOW);
       break;
     case 5:
-      digitalWrite(selC[0], HIGH);
-      digitalWrite(selB[0], LOW);
-      digitalWrite(selA[0], HIGH);
+      digitalWrite(selC[s], HIGH);
+      digitalWrite(selB[s], LOW);
+      digitalWrite(selA[s], HIGH);
       break;
     case 6:
-      digitalWrite(selC[0], HIGH);
-      digitalWrite(selB[0], HIGH);
-      digitalWrite(selA[0], LOW);
+      digitalWrite(selC[s], HIGH);
+      digitalWrite(selB[s], HIGH);
+      digitalWrite(selA[s], LOW);
       break;
     case 7:
-      digitalWrite(selC[0], HIGH);
-      digitalWrite(selB[0], HIGH);
-      digitalWrite(selA[0], HIGH);
+      digitalWrite(selC[s], HIGH);
+      digitalWrite(selB[s], HIGH);
+      digitalWrite(selA[s], HIGH);
       break;
   }
-  
-  //8 - 15
-  
-  
-  //16 - 23
-  
-  
-  //24
 }
 
 void renderCols() {
