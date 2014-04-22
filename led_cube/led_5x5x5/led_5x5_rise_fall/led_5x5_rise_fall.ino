@@ -150,6 +150,41 @@ void setCol(int pin, boolean output) {
   }
 }
 
+void rowOn(int r) {
+  for (int i=0;i<5;i++) {
+    if (i==r) {
+      analogWrite(row[i],255); 
+    } else {
+      analogWrite(row[i],0); 
+    }
+  }
+}
+
+void dropThroughCol(int col, int dropDelay) {
+  allOff();
+  
+  // set cols
+  setCol(col,true);
+  
+  for (int r=5;r>=0;r--) {
+    rowOn(r); 
+    delay(dropDelay);
+  }
+  
+}
+
+void riseThroughCol(int col, int riseDelay) {
+  allOff();
+  
+  // set cols
+  setCol(col,true);
+  
+  for (int r=0;r<5;r++) {
+    rowOn(r); 
+    delay(riseDelay);
+  }
+}
+
 void fadeColIn(int col, int fadeDelay) {
   allOff();
   
@@ -183,12 +218,16 @@ void loop()
 {  
   frameInterval = 75;
   
-  int fadeDelay = 5;
-  int col = random(0,24);
+  int motionDelay = 50;
+  int col = random(0,25);
+  int motion = random(0,2);
   
-  fadeColIn(col,fadeDelay);
+  if (motion==0) {
+    dropThroughCol(col,motionDelay);
+  } else {
+    riseThroughCol(col,motionDelay);
+  }
 
-  fadeColOut(col,fadeDelay);
   allOff();
 }
 
