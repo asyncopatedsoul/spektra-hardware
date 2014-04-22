@@ -164,31 +164,31 @@ void renderFrame() {
    frameCounter = 0;  
 }
 
-void fadeAllIn() {
+void fadeColIn(int col, int fadeDelay) {
+  allOff();
   
   // set cols
-  for (int i=0;i<25;i++) {
-    columns[i]=1;
-  }
+  setCol(col,true);
   
   // set rows
   for(int fadeValue = fadeMin ; fadeValue <= fadeMax; fadeValue+=fadeStep) { 
     setAllRows(fadeValue);  
-    renderFrame();
+    delay(fadeDelay);
+    //renderFrame();
   } 
 }
 
-void fadeAllOut() {
+void fadeColOut(int col, int fadeDelay) {
+  allOff();
   
   // set cols
-  for (int i=0;i<25;i++) {
-    columns[i]=1;
-  }
+  setCol(col,true);
   
   // set rows
   for(int fadeValue = fadeMax ; fadeValue >= fadeMin; fadeValue-=fadeStep) { 
-    setAllRows(fadeValue);  
-    renderFrame();
+    setAllRows(fadeValue);
+    delay(fadeDelay);  
+    //renderFrame();
   } 
   
 }
@@ -196,18 +196,14 @@ void fadeAllOut() {
 void loop() 
 {  
   frameInterval = 75;
-  int delayMin = 1;
-  int delayMax = 3;
-  int delayMultiple = 1000;
   
-  int offDelay = random(delayMin*delayMultiple,delayMax*delayMultiple);
-  // give random delay between pulses
+  int fadeDelay = 5;
+  int col = random(0,24);
   
-  fadeAllIn();
+  fadeColIn(col,fadeDelay);
 
-  fadeAllOut();
+  fadeColOut(col,fadeDelay);
   allOff();
-  delay(offDelay);
 }
 
 
