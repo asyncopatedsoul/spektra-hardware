@@ -29,30 +29,6 @@ void setup() {
    alarmStatus = 0;
 }
 
-void turnGreenOn(boolean on) {
-  if (on) {
-    digitalWrite(pinLedGreen,HIGH);
-  } else {
-    digitalWrite(pinLedGreen,LOW);
-  }
-}
-
-void turnYellowOn(boolean on) {
-  if (on) {
-    digitalWrite(pinLedYellow,HIGH);
-  } else {
-    digitalWrite(pinLedYellow,LOW);
-  }
-}
-
-void turnRedOn(boolean on) {
-  if (on) {
-    digitalWrite(pinLedRed,HIGH);
-  } else {
-    digitalWrite(pinLedRed,LOW);
-  }
-}
-
 void loop() {
 
   //val = digitalRead(pinReadTripped); 
@@ -65,8 +41,8 @@ void loop() {
     
     case statusDeactivated:
       turnGreenOn(true);
-      turnYellowOn(false);
-      turnRedOn(false);
+      turnYellowOn(true);
+      turnRedOn(true);
       
       setAlarm(false);
         
@@ -78,6 +54,10 @@ void loop() {
     break;
     
     case statusWaitingForLaser:
+      turnGreenOn(true);
+      turnYellowOn(false);
+      turnRedOn(false);
+      
       if (!isLaserTripped()) {
          alarmStatus = statusReadyToArm;
       }
@@ -111,6 +91,11 @@ void loop() {
     case statusTripped:
       setAlarm(true);
       
+      turnRedOn(false);
+      delay(200);
+      turnRedOn(true);
+      delay(200);
+      
       if (isResetPressed()) {
         alarmStatus = statusDeactivated;
         delay(1000);
@@ -118,32 +103,46 @@ void loop() {
         
       }
     break;
-    
-    
   }
-  
-  // check for trip
-//  if (isLaserTripped()) {
-//    setAlarm(true);
-//  } else {
-//    setAlarm(false);
-//  }
-  
-
-//  
-//  
-//  delay(100);
-  
 }
 
-boolean isLaserTripped() {
 
+
+boolean isLaserTripped() {
   return (digitalRead(pinReadTripped)==HIGH);
-  
+}
+
+boolean isResetPressed() {
+  return (digitalRead(pinReadReset)==LOW);
+}
+
+
+
+void turnGreenOn(boolean on) {
+  if (on) {
+    digitalWrite(pinLedGreen,HIGH);
+  } else {
+    digitalWrite(pinLedGreen,LOW);
+  }
+}
+
+void turnYellowOn(boolean on) {
+  if (on) {
+    digitalWrite(pinLedYellow,HIGH);
+  } else {
+    digitalWrite(pinLedYellow,LOW);
+  }
+}
+
+void turnRedOn(boolean on) {
+  if (on) {
+    digitalWrite(pinLedRed,HIGH);
+  } else {
+    digitalWrite(pinLedRed,LOW);
+  }
 }
 
 void setAlarm(boolean on) {
-   
   if (on) {
      digitalWrite(pinActivateAlarm,HIGH);
   } else {
@@ -152,6 +151,4 @@ void setAlarm(boolean on) {
   
 }
 
-boolean isResetPressed() {
- return (digitalRead(pinReadReset)==LOW);
-}
+
