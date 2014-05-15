@@ -9,8 +9,8 @@ int val = 0;
 int alarmStatus;
 
 const int statusDeactivated = 0;
-const int statusReadyToArm = 1;
-const int statusDetectedLaser = 2;
+const int statusWaitingForLaser = 1;
+const int statusReadyToArm = 2;
 const int statusArmed = 3;
 const int statusTripped = 4;
 
@@ -71,31 +71,36 @@ void loop() {
       setAlarm(false);
         
       if (isResetPressed()) {
-        alarmStatus = statusReadyToArm;
+        alarmStatus = statusWaitingForLaser;
       } else {
         //setAlarm(false);
       }
     break;
     
-    case statusReadyToArm:
-      turnGreenOn(false);
-      turnYellowOn(true);
-      turnRedOn(false);
-      
-      if (!isLaserTripped() && isResetPressed()) {
-        alarmStatus = statusDetectedLaser;
+    case statusWaitingForLaser:
+      if (!isLaserTripped()) {
+         alarmStatus = statusReadyToArm;
       }
     break;
     
-    case statusDetectedLaser:
+    case statusReadyToArm: 
+      turnGreenOn(false);
+      turnYellowOn(true);
+      turnRedOn(false);
+    
+      if (isLaserTripped()) {
+        alarmStatus = statusWaitingForLaser;
+      } else if(isResetPressed()) {
+        alarmStatus = statusArmed;
+      }
+    break;
+    
+    
+    case statusArmed:
       turnGreenOn(false);
       turnYellowOn(false);
       turnRedOn(true);
-      
-      alarmStatus = statusArmed;
-    break;
     
-    case statusArmed:
       if (isLaserTripped()) {
         alarmStatus = statusTripped;
       } else {
