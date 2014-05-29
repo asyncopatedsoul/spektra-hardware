@@ -6,6 +6,8 @@ int pinReadTripped = 9;
 int pinReadReset = 10;
 int val = 0; 
 
+int disarmingDelay = 3000;
+
 int alarmStatus;
 
 const int statusDeactivated = 0;
@@ -13,6 +15,7 @@ const int statusWaitingForLaser = 1;
 const int statusReadyToArm = 2;
 const int statusArmed = 3;
 const int statusTripped = 4;
+const int statusDisarming = 5;
 
 
 void setup() {
@@ -97,11 +100,15 @@ void loop() {
       delay(200);
       
       if (isResetPressed()) {
-        alarmStatus = statusDeactivated;
-        delay(1000);
-      } else {
-        
+         alarmStatus = statusDisarming;
       }
+    break;
+    
+    case statusDisarming:
+      turnRedOn(false);
+      setAlarm(false);
+      alarmStatus = statusDeactivated;
+      delay(disarmingDelay);
     break;
   }
 }
