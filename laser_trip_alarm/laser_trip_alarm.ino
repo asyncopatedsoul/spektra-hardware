@@ -29,7 +29,7 @@ void setup() {
   pinMode(pinLedRed, OUTPUT);
   pinMode(pinActivateAlarm, OUTPUT);
  
-   alarmStatus = 0;
+   alarmStatus = statusDeactivated;
 }
 
 void loop() {
