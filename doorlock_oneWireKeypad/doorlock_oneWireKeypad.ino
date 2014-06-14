@@ -1,9 +1,19 @@
+#include <Servo.h>
+
 #include <EEPROM.h>
 #include "EEPROMAnything.h"
+
+#include <Servo.h> 
+ 
+Servo lockServo;  // create servo object to control a servo 
 
 int greenLed = 8;
 int yellowLed = 9;
 int redLed = 10;
+int servoPin = 6;
+
+const int lockAngle = 179;
+const int unlockAngle = 0;
 
 int entryCode[4] = {10,10,10,10};
 struct config_t
@@ -40,6 +50,8 @@ void clearEEPROM() {
 void setup() {
  Serial.begin(9600); 
  
+ lockServo.attach(servoPin);
+ 
 //clearEEPROM();
  
  EEPROM_readAnything(0, configuration);
@@ -60,7 +72,7 @@ void setup() {
  pinMode(redLed,OUTPUT);
  pinMode(A0,INPUT);
  
- showLockState();
+ switchLock();
 }
 
 void showLockState() {
@@ -79,6 +91,14 @@ void showLockState() {
       
   }
   
+}
+
+void switchLock() {
+  if (isLocked) {
+   lockServo.write(lockAngle); 
+  } else {
+    lockServo.write(unlockAngle); 
+  }
 }
 
 void blinkLed(int pin, int count) {
@@ -144,13 +164,9 @@ void listenForEntry() {
 
 void loop(){
   
-  //lock is unlocked
-  //digitalWrite(greenLed,HIGH);
-  
   showLockState();
   
   listenForEntry();
-
   
   if  (entryCount==4) {
     
@@ -171,7 +187,8 @@ void loop(){
     } else if (validateEntry()) {
         
       //switch lockState
-      isLocked = !isLocked;
+     isLocked = !isLocked;
+     switchLock();
       
       blinkLed(greenLed,3);
       
