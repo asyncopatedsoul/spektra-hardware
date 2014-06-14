@@ -1,6 +1,4 @@
 #include <Servo.h>
-#include <EEPROM.h>
-#include "EEPROMAnything.h"
 
 /* Detects patterns of knocks and triggers a motor to unlock
    it if the pattern is correct.
@@ -46,7 +44,6 @@ const int knockComplete = 1200;     // Longest time to wait for a knock before w
 
 
 // Variables.
-//int secretCode[maximumKnocks] = {50, 25, 25, 50, 100, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};  // Initial setup: "Shave and a Hair Cut, two bits."
 int secretCode[maximumKnocks] = {100, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 int knockReadings[maximumKnocks];   // When someone knocks this array fills with delays between knocks.
 int knockSensorValue;           // Last reading of the knock sensor.
@@ -54,9 +51,10 @@ int knockSensorValue;           // Last reading of the knock sensor.
 boolean isLocked;
 boolean isResettingEntryCode;
 
-
-
 void setup() {
+  Serial.begin(9600);                           // Uncomment the Serial.bla lines for debugging.
+  Serial.println("Program start.");             // but feel free to comment them out after it's working right.
+  
   pinMode(lockServoPin, OUTPUT);
   pinMode(redLED, OUTPUT);
   pinMode(greenLED, OUTPUT);
@@ -69,12 +67,8 @@ void setup() {
   isResettingEntryCode = false;
   isLocked = false;
   
-  Serial.begin(9600);                           // Uncomment the Serial.bla lines for debugging.
-  Serial.println("Program start.");             // but feel free to comment them out after it's working right.
   
   updateLock();
-  
-  //digitalWrite(greenLED, HIGH);      // Green LED on, everything is go.
 }
 
 void loop() {
