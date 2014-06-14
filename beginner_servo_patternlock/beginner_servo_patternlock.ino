@@ -1,4 +1,7 @@
 #include <Servo.h>
+#include <EEPROM.h>
+#include "EEPROMAnything.h"
+
 /* Detects patterns of knocks and triggers a motor to unlock
    it if the pattern is correct.
    
@@ -18,19 +21,24 @@
    Update: Nov 20 09: Updated handling of programming button to make it more intuitive, give better feedback.
    Update: Jan 20 10: Removed the "pinMode(knockSensor, OUTPUT);" line since it makes no sense and doesn't do anything.
  */
- Servo myservo;
+ Servo lockServo;
+ 
 // Pin definitions
 const int knockSensor = A3;         // Piezo sensor on pin 0.
 const int programSwitch = 7;       // If this is high we program a new code.
-const int lockMotor = 5;           // Gear motor used to turn the lock.
-const int redLED = 2;              // Status LED
-const int greenLED = 4;            // Status LED
- 
+const int lockServoPin = 5;           // Gear motor used to turn the lock.
+const int greenLED = 2;            // Status LED
+const int yellowLED = 3;
+const int redLED = 4;              // Status LED
+
+const int lockAngle = 179;
+const int unlockAngle = 0;
+
 // Tuning constants.  Could be made vars and hoooked to potentiometers for soft configuration, etc.
-const int threshold = 3;           // Minimum signal from the piezo to register as a knock
-const int rejectValue = 45;        // If an individual knock is off by this percentage of a knock we don't unlock..
+const int threshold = 25;           // Minimum signal from the piezo to register as a knock
+const int rejectValue = 25;        // If an individual knock is off by this percentage of a knock we don't unlock..
 const int averageRejectValue = 45; // If the average timing of the knocks is off by this percent we don't unlock.
-const int knockFadeTime = 150;     // milliseconds we allow a knock to fade before we listen for another one. (Debounce timer.)
+const int knockFadeTime = 250;     // milliseconds we allow a knock to fade before we listen for another one. (Debounce timer.)
 const int lockTurnTime = 650;      // milliseconds that we run the motor to get it to go a half turn.
 
 const int maximumKnocks = 20;       // Maximum number of knocks to listen for.
@@ -38,48 +46,150 @@ const int knockComplete = 1200;     // Longest time to wait for a knock before w
 
 
 // Variables.
-int secretCode[maximumKnocks] = {50, 25, 25, 50, 100, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};  // Initial setup: "Shave and a Hair Cut, two bits."
-//int secretCode[maximumKnocks] = {50, 100, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+//int secretCode[maximumKnocks] = {50, 25, 25, 50, 100, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};  // Initial setup: "Shave and a Hair Cut, two bits."
+int secretCode[maximumKnocks] = {100, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 int knockReadings[maximumKnocks];   // When someone knocks this array fills with delays between knocks.
-int knockSensorValue = 0;           // Last reading of the knock sensor.
-int programButtonPressed = false;   // Flag so we remember the programming button setting at the end of the cycle.
+int knockSensorValue;           // Last reading of the knock sensor.
+
+boolean isLocked;
+boolean isResettingEntryCode;
+
+
 
 void setup() {
-  pinMode(lockMotor, OUTPUT);
+  pinMode(lockServoPin, OUTPUT);
   pinMode(redLED, OUTPUT);
   pinMode(greenLED, OUTPUT);
+  pinMode(yellowLED, OUTPUT);
   pinMode(programSwitch, INPUT);
-  myservo.attach(5);
+  
+  lockServo.attach(lockServoPin);
+  
+  knockSensorValue = 0;
+  isResettingEntryCode = false;
+  isLocked = false;
+  
   Serial.begin(9600);                           // Uncomment the Serial.bla lines for debugging.
   Serial.println("Program start.");             // but feel free to comment them out after it's working right.
   
-  digitalWrite(greenLED, HIGH);      // Green LED on, everything is go.
+  updateLock();
+  
+  //digitalWrite(greenLED, HIGH);      // Green LED on, everything is go.
 }
 
 void loop() {
+  
+  showLockState();
+
+  if (digitalRead(programSwitch)==LOW  && !isLocked){  // is the program button pressed?
+    Serial.println("reset button pressed.");
+  
+    if (!isResettingEntryCode) {
+      Serial.println("entering reset mode...");
+      isResettingEntryCode = true;
+      blinkLed(yellowLED,5);
+    } else {
+       Serial.println("saving new code.");
+      isResettingEntryCode = false;
+      blinkLed(yellowLED,3); 
+    }
+  }
+  
   // Listen for any knock at all.
   knockSensorValue = analogRead(knockSensor);
-  //Serial.println(knockSensorValue);
-  if (digitalRead(programSwitch)==HIGH){  // is the program button pressed?
-    programButtonPressed = true;          // Yes, so lets save that state
-    digitalWrite(redLED, HIGH);           // and turn on the red light too so we know we're programming.
-  } else {
-    programButtonPressed = false;
-    digitalWrite(redLED, LOW);
-  }
   
   if (knockSensorValue <=threshold){
     listenToSecretKnock();
   }
 } 
 
+
+void blinkLed(int pin, int count) {
+   
+  int blinkDelay=150;
+  
+  for (int i=0;i<count;i++) {
+      digitalWrite(pin,HIGH);
+        delay(blinkDelay);
+        digitalWrite(pin,LOW);
+        delay(blinkDelay);
+  }
+}
+
+
+void showLockState() {
+  
+  digitalWrite(greenLED,LOW);
+  digitalWrite(yellowLED,LOW);
+  digitalWrite(redLED,LOW);
+  
+  if (isResettingEntryCode) {
+    digitalWrite(yellowLED,HIGH);
+    digitalWrite(redLED,HIGH);
+  } else if (isLocked) {
+    digitalWrite(redLED,HIGH);
+  } else {
+    digitalWrite(greenLED,HIGH);   
+  }
+
+}
+
+void updateLock() {
+  if (isLocked) {
+      Serial.println("Door locked.");
+   lockServo.write(lockAngle); 
+   
+  } else {
+      Serial.println("Door unlocked!");
+    lockServo.write(unlockAngle); 
+  }
+}
+
+void showKnock() {
+  
+  if (isResettingEntryCode){
+     digitalWrite(greenLED, HIGH);
+  } else {
+    digitalWrite(yellowLED, HIGH); 
+  }
+      
+  delay(knockFadeTime);       
+  
+  // again, a little delay to let the knock decay.
+  if (isResettingEntryCode){
+     digitalWrite(greenLED, LOW);
+  } else {
+    digitalWrite(yellowLED, LOW); 
+  }
+}
+
+void playbackEntryCode(int maxKnockInterval) {
+  
+  Serial.println(0);
+  showKnock();
+  
+  for (int i = 0; i < maximumKnocks ; i++){
+
+        int playbackDelay =  map(secretCode[i],0, 100, 0, maxKnockInterval);
+        Serial.println(playbackDelay);
+                    
+        delay(playbackDelay); // Expand the time back out to what it was.  Roughly. 
+        
+        if (playbackDelay>0) {
+          Serial.println(1+i);
+          showKnock();
+        }
+   }
+}
+
 // Records the timing of knocks.
 void listenToSecretKnock(){
   Serial.println("knock starting");   
+  
 
-  int i = 0;
+  
   // First lets reset the listening array.
-  for (i=0;i<maximumKnocks;i++){
+  for (int i=0;i<maximumKnocks;i++){
     knockReadings[i]=0;
   }
   
@@ -87,19 +197,15 @@ void listenToSecretKnock(){
   int startTime=millis();                       // Reference for when this knock started.
   int now=millis();
   
-  digitalWrite(greenLED, LOW);                  // we blink the LED for a bit as a visual indicator of the knock.
-  if (programButtonPressed==true){
-     digitalWrite(redLED, LOW);                         // and the red one too if we're programming a new knock.
-  }
-  delay(knockFadeTime);                                 // wait for this peak to fade before we listen to the next one.
-  digitalWrite(greenLED, HIGH);  
-  if (programButtonPressed==true){
-     digitalWrite(redLED, HIGH);                        
-  }
+  showKnock();
+  
   do {
     //listen for the next knock or wait for it to timeout. 
     knockSensorValue = analogRead(knockSensor);
+
     if (knockSensorValue <=threshold){                   //got another knock...
+
+
       //record the delay time.
       Serial.println("knock.");
       now=millis();
@@ -107,15 +213,8 @@ void listenToSecretKnock(){
       currentKnockNumber ++;                             //increment the counter
       startTime=now;          
       // and reset our timer for the next knock
-      digitalWrite(greenLED, LOW);  
-      if (programButtonPressed==true){
-        digitalWrite(redLED, LOW);                       // and the red one too if we're programming a new knock.
-      }
-      delay(knockFadeTime);                              // again, a little delay to let the knock decay.
-      digitalWrite(greenLED, HIGH);
-      if (programButtonPressed==true){
-        digitalWrite(redLED, HIGH);                         
-      }
+
+      showKnock();
     }
 
     now=millis();
@@ -124,60 +223,34 @@ void listenToSecretKnock(){
   } while ((now-startTime < knockComplete) && (currentKnockNumber < maximumKnocks));
   
   //we've got our knock recorded, lets see if it's valid
-  if (programButtonPressed==false){             // only if we're not in progrmaing mode.
-    if (validateKnock() == true){
-      triggerDoorUnlock(); 
+  if (!isResettingEntryCode){             // only if we're not in progrmaing mode.
+    
+    if (validateKnock()){
+      switchLock(); 
     } else {
       Serial.println("Secret knock failed.");
-      digitalWrite(greenLED, LOW);          // We didn't unlock, so blink the red LED as visual feedback.
-      for (i=0;i<4;i++){                    
-        digitalWrite(redLED, HIGH);
-        delay(100);
-        digitalWrite(redLED, LOW);
-        delay(100);
-      }
-      digitalWrite(greenLED, HIGH);
+      blinkLed(redLED,3);
     }
+    
   } else { // if we're in programming mode we still validate the lock, we just don't do anything with the lock
+    
     validateKnock();
-    // and we blink the green and red alternately to show that program is complete.
-    Serial.println("New lock stored.");
-    digitalWrite(redLED, LOW);
-    digitalWrite(greenLED, HIGH);
-    for (i=0;i<3;i++){
-      delay(100);
-      digitalWrite(redLED, HIGH);
-      digitalWrite(greenLED, LOW);
-      delay(100);
-      digitalWrite(redLED, LOW);
-      digitalWrite(greenLED, HIGH);      
-    }
+    
+    blinkLed(yellowLED,5);
+     
+    Serial.println("New lock recorded.");
   }
+  
 }
 
 
 // Runs the motor (or whatever) to unlock the door.
-void triggerDoorUnlock(){
-  Serial.println("Door unlocked!");
-  int i=0;
+void switchLock(){
   
-  // turn the motor on for a bit.
-  //digitalWrite(lockMotor, HIGH);
-  myservo.write(179);
-  digitalWrite(greenLED, HIGH);            // And the green LED too.
+  isLocked=!isLocked;
+  updateLock();
   
-  delay (lockTurnTime);                    // Wait a bit.
-  
-  digitalWrite(lockMotor, LOW);            // Turn the motor off.
-  
-  // Blink the green LED a few times for more visual feedback.
-  for (i=0; i < 5; i++){   
-      digitalWrite(greenLED, LOW);
-      delay(100);
-      digitalWrite(greenLED, HIGH);
-      delay(100);
-  }
-   
+  blinkLed(greenLED,3);
 }
 
 // Sees if our knock matches the secret.
@@ -205,28 +278,15 @@ boolean validateKnock(){
   }
   
   // If we're recording a new knock, save the info and get out of here.
-  if (programButtonPressed==true){
+  if (isResettingEntryCode){
+      
       for (i=0;i<maximumKnocks;i++){ // normalize the times
         secretCode[i]= map(knockReadings[i],0, maxKnockInterval, 0, 100); 
       }
       // And flash the lights in the recorded pattern to let us know it's been programmed.
-      digitalWrite(greenLED, LOW);
-      digitalWrite(redLED, LOW);
-      delay(1000);
-      digitalWrite(greenLED, HIGH);
-      digitalWrite(redLED, HIGH);
-      delay(50);
-      for (i = 0; i < maximumKnocks ; i++){
-        digitalWrite(greenLED, LOW);
-        digitalWrite(redLED, LOW);  
-        // only turn it on if there's a delay
-        if (secretCode[i] > 0){                                   
-          delay( map(secretCode[i],0, 100, 0, maxKnockInterval)); // Expand the time back out to what it was.  Roughly. 
-          digitalWrite(greenLED, HIGH);
-          digitalWrite(redLED, HIGH);
-        }
-        delay(50);
-      }
+      
+      playbackEntryCode(maxKnockInterval);
+      
       return false;     // We don't unlock the door when we are recording a new knock.
   }
   
@@ -247,11 +307,13 @@ boolean validateKnock(){
   int timeDiff=0;
   for (i=0;i<maximumKnocks;i++){ // Normalize the times
     knockReadings[i]= map(knockReadings[i],0, maxKnockInterval, 0, 100);
+    Serial.println("---"); 
     Serial.println(knockReadings[i]);    
+    Serial.println("-"); 
     timeDiff = abs(knockReadings[i]-secretCode[i]);
     Serial.println(timeDiff);
     if (timeDiff > rejectValue){ // Individual value too far out of whack
-      //return false;
+      return false;
     }
     totaltimeDifferences += timeDiff;
   }

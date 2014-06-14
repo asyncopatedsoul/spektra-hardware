@@ -1,5 +1,3 @@
-#include <Servo.h>
-
 #include <EEPROM.h>
 #include "EEPROMAnything.h"
 
@@ -7,10 +5,10 @@
  
 Servo lockServo;  // create servo object to control a servo 
 
-int greenLed = 8;
-int yellowLed = 9;
-int redLed = 10;
-int servoPin = 6;
+const int greenLed = 8;
+const int yellowLed = 9;
+const int redLed = 10;
+const int servoPin = 6;
 
 const int lockAngle = 179;
 const int unlockAngle = 0;
@@ -73,6 +71,46 @@ void setup() {
  pinMode(A0,INPUT);
  
  switchLock();
+}
+
+void loop(){
+  
+  showLockState();
+  
+  listenForEntry();
+  
+  if  (entryCount==4) {
+    
+    if (isResettingEntryCode) {
+      
+      entryCount=0;
+      isResettingEntryCode=false;
+      
+      for (int i=0;i<4;i++) {
+        configuration.entryCode[i]=entrySequence[i];
+      }
+          
+      
+      EEPROM_writeAnything(0, configuration);
+      
+      blinkLed(yellowLed,3);
+    
+    } else if (validateEntry()) {
+        
+      //switch lockState
+     isLocked = !isLocked;
+     switchLock();
+      
+      blinkLed(greenLed,3);
+      
+      //turn lock
+      
+    } else {
+       //show incorrect
+        blinkLed(redLed,3);
+      
+    }
+  }
 }
 
 void showLockState() {
@@ -159,46 +197,6 @@ void listenForEntry() {
       entryCount++;
     
       }
-  }
-}
-
-void loop(){
-  
-  showLockState();
-  
-  listenForEntry();
-  
-  if  (entryCount==4) {
-    
-    if (isResettingEntryCode) {
-      
-      entryCount=0;
-      isResettingEntryCode=false;
-      
-      for (int i=0;i<4;i++) {
-        configuration.entryCode[i]=entrySequence[i];
-      }
-          
-      
-      EEPROM_writeAnything(0, configuration);
-      
-      blinkLed(yellowLed,3);
-    
-    } else if (validateEntry()) {
-        
-      //switch lockState
-     isLocked = !isLocked;
-     switchLock();
-      
-      blinkLed(greenLed,3);
-      
-      //turn lock
-      
-    } else {
-       //show incorrect
-        blinkLed(redLed,3);
-      
-    }
   }
 }
 
