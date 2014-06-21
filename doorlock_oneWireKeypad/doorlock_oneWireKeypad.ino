@@ -5,25 +5,26 @@
  
 Servo lockServo;  // create servo object to control a servo 
 
-const int greenLed = 8;
-const int yellowLed = 9;
-const int redLed = 10;
-const int servoPin = 6;
+const int greenLed = 13;
+const int yellowLed = 12;
+const int redLed = 11;
+const int servoPin = 9;
+const int keypadPin = A5;
 
 const int lockAngle = 179;
 const int unlockAngle = 0;
 
-int entryCode[4] = {10,10,10,10};
+int entryCode[4] = {0,0,0,0};
 struct config_t
 {
    int entryCode[4];
 } configuration;
 
 int keyMap[12][2] = {
- {1021,1023},{508,509},{336,338},
- {176,177},{149,150},{129,130},
- {95,96},{86,87},{79,80},
- {63,66},{59,61},{56,58}
+ {490,500},{240,260},{165,166},
+ {86,89},{72,74},{63,64},
+ {46,47},{42,43},{38,40},
+ {31,33},{29,30},{27,28}
 };
 
 char keys[12] = {
@@ -45,14 +46,8 @@ void clearEEPROM() {
  EEPROM_writeAnything(0, configuration); 
 }
 
-void setup() {
- Serial.begin(9600); 
- 
- lockServo.attach(servoPin);
- 
-//clearEEPROM();
- 
- EEPROM_readAnything(0, configuration);
+boolean checkSavedEntryCode() {
+  EEPROM_readAnything(0, configuration);
  
  
  Serial.println("configuration:");
@@ -61,6 +56,29 @@ void setup() {
  Serial.println(configuration.entryCode[2]);
  Serial.println(configuration.entryCode[3]);
  
+ for (int i=0;i<4;i++) {
+   if (configuration.entryCode[i]==-1) {
+     return false;
+   }
+ }
+ Serial.println("custom entry code");
+ return true;
+}
+
+void setup() {
+ Serial.begin(9600); 
+ 
+ lockServo.attach(servoPin);
+ 
+//clearEEPROM();
+ 
+ if(!checkSavedEntryCode()){
+   Serial.println("defualt entry code");
+   for (int i=0;i<4;i++) {
+      configuration.entryCode[i] = entryCode[i]; 
+   }
+ }
+ 
  entryCount = 0;
  isLocked = false;
  isResettingEntryCode = false;
@@ -68,7 +86,7 @@ void setup() {
  pinMode(greenLed,OUTPUT);
  pinMode(yellowLed,OUTPUT);
  pinMode(redLed,OUTPUT);
- pinMode(A0,INPUT);
+ pinMode(keypadPin, INPUT);
  
  switchLock();
 }
@@ -177,12 +195,13 @@ void listenForEntry() {
   int keyPressSensor = checkKeyPress();
   int keyPressedIndex = mapKeyPress(keyPressSensor);
   
+  //Serial.println(keyPressedIndex);
   
   if (keyPressedIndex!=-1) {
     
     //char keyPressed = keys[keyPressedIndex];
     
-    Serial.println(keyPressedIndex);
+    
     
     //check if reset entry code
       if (!isLocked && keyPressedIndex==9) {
@@ -197,6 +216,8 @@ void listenForEntry() {
       entryCount++;
     
       }
+  } else {
+    //blinkLed(redLed,1);
   }
 }
 
@@ -210,23 +231,28 @@ int mapKeyPress(int sensorValue) {
  return -1; 
 }
 
-int checkKeyPress() {
+float checkKeyPress() {
   
   int sampleSize = 20;
   int threshold = 10;
   int debounce = 300;
   
-  if (analogRead(A0)>threshold) {
+  //Serial.println(analogRead(keypadPin));
+  
+  if (analogRead(keypadPin)>threshold) {
     
+    //int resStream=0;
     int resStream=0;
     int resStreamCount=0;
     
     do {
-      resStream+=analogRead(A0);
+      resStream+=analogRead(keypadPin) * (5.0 / 1023.0) * 100;
+      //resStream+=analogRead(keypadPin);
       resStreamCount++;
     } while (resStreamCount<sampleSize);
     
     resStream = resStream/sampleSize;
+    Serial.println("checkKeyPress");
     Serial.println(resStream);
     
     if (isResettingEntryCode) {
