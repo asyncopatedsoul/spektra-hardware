@@ -9,10 +9,8 @@ const int greenLed = 13;
 const int yellowLed = 12;
 const int redLed = 11;
 const int servoPin = 9;
-<<<<<<< HEAD
 const int keypadPin = A5;
-=======
->>>>>>> FETCH_HEAD
+
 
 const int lockAngle = 179;
 const int unlockAngle = 0;
@@ -89,11 +87,8 @@ void setup() {
  pinMode(greenLed,OUTPUT);
  pinMode(yellowLed,OUTPUT);
  pinMode(redLed,OUTPUT);
-<<<<<<< HEAD
  pinMode(keypadPin, INPUT);
-=======
- pinMode(A5, INPUT);
->>>>>>> FETCH_HEAD
+
  
  switchLock();
 }
