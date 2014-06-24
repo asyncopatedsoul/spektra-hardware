@@ -14,11 +14,11 @@
  
 // Pin definitions
 const int knockSensor = A3;         // Piezo sensor on pin 0.
-const int programSwitch = 10;       // If this is high we program a new code.
-const int lockServoPin = 9;           // Gear motor used to turn the lock.
-const int greenLED = 5;            // Status LED
-const int yellowLED = 6;
-const int redLED = 7;              // Status LED
+const int programSwitch = 9;       // If this is high we program a new code.
+const int lockServoPin = 10;           // Gear motor used to turn the lock.
+const int greenLED = 13;            // Status LED
+const int yellowLED = 12;
+const int redLED = 11;              // Status LED
 
 const int lockAngle = 90;
 const int unlockAngle = 179;
