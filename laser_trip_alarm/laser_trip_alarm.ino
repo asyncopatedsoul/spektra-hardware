@@ -34,11 +34,12 @@ void setup() {
 
 void loop() {
 
-  //val = digitalRead(pinReadTripped); 
-  //val = digitalRead(pinReadReset); 
-  val = alarmStatus;
-  // http://arduino.cc/en/Tutorial/DigitalReadSerial
-  Serial.println(val);
+ 
+  Serial.println(alarmStatus);
+  Serial.println(isResetPressed());
+  Serial.println(isLaserTripped());
+  Serial.println("---");
+  delay(500);
   
   switch (alarmStatus) {
     
@@ -127,25 +128,25 @@ boolean isResetPressed() {
 
 void turnGreenOn(boolean on) {
   if (on) {
-    digitalWrite(pinLedGreen,HIGH);
-  } else {
     digitalWrite(pinLedGreen,LOW);
+  } else {
+    digitalWrite(pinLedGreen,HIGH);
   }
 }
 
 void turnYellowOn(boolean on) {
   if (on) {
-    digitalWrite(pinLedYellow,HIGH);
-  } else {
     digitalWrite(pinLedYellow,LOW);
+  } else {
+    digitalWrite(pinLedYellow,HIGH);
   }
 }
 
 void turnRedOn(boolean on) {
   if (on) {
-    digitalWrite(pinLedRed,HIGH);
-  } else {
     digitalWrite(pinLedRed,LOW);
+  } else {
+    digitalWrite(pinLedRed,HIGH);
   }
 }
 
