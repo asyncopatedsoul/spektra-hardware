@@ -10,26 +10,18 @@ int colorPressureLevels[4][2] = {
 {101,200},
 {201,300},
 {301,400},
-{401,500},
-{401,500},
-{401,500},
-{401,500}
 };
 
 int colorRGBValues[4][3] = { 
 {0,0,0},
 {229,39,38}, //red
-{246,136,39}, //orange
-{221,222,32}, //yellow
 {119,192,67}, //green
-{66,195,210}, //light blue
-{57,90,168}, //dark blue
-{142,81,160}, //purple
-{217,85,159} //pink
+{66,195,210}, //blue
+
 };
 
 void setup() {
-  Serial.begin(9600);
+  //Serial.begin(9600);
   
   pinMode(pinPressureSensor, INPUT);
   
@@ -40,7 +32,7 @@ void setup() {
 
 void loop() {
   int pressureLevel = getPressureLevel();
-  Serial.println(pressureLevel);
+  //Serial.println(pressureLevel);
   setColor(pressureLevel);
 }
 
