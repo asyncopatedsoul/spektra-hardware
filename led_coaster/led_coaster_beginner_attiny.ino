@@ -1,17 +1,17 @@
 //#include <NewSoftSerial.h>
 
-int pinLedRed = A2;
-int pinLedYellow = A3;
-int pinLedGreen = A1;
+int pinLedRed = 0;
+int pinLedYellow = 1;
+int pinLedGreen = 2;
 
-int pinPressureSensor = A0;
+int pinPressureSensor = 3;
 
 int countPressureLevels = 4;
 int colorPressureLevels[4][2] = {
-{0,30},
-{31,100},
-{101,180},
-{181,1000}
+{0,200},
+{201,250},
+{251,300},
+{301,1000}
 };
 
 
