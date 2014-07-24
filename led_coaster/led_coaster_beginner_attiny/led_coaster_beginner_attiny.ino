@@ -8,18 +8,23 @@ int pinPressureSensor = 3;
 
 int countPressureLevels = 4;
 int colorPressureLevels[4][2] = {
-{0,200},
-{201,250},
-{251,300},
-{301,1000}
+{0,300},
+{301,350},
+{351,400},
+{401,1000}
 };
 
 
-int colorRGBValues[4][3] = { 
-{255,255,255},
-{0,255,255}, //red
-{255,0,255}, //yellow
-{255,255,0} //green
+int colorRGBValues[4][3] = {
+{0,0,0},
+{255,0,0}, //red
+{0,255,0}, //yellow
+{0,0,255} //green
+  
+//{255,255,255},
+//{0,255,255}, //red
+//{255,0,255}, //yellow
+//{255,255,0} //green
 };
 
 void setup() {
