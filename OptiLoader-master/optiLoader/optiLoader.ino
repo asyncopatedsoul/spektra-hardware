@@ -82,7 +82,9 @@
 
 
 #include <avr/pgmspace.h>
+#include "Arduino.h"
 #include "optiLoader.h"
+
 
 char Arduino_preprocessor_hint;
 

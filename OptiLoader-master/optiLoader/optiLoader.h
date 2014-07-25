@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "Arduino.h"
 
 typedef struct image {
     char image_name[30];	       /* Ie "optiboot_diecimila.hex" */

@@ -4,7 +4,7 @@ const int modeFlicker = 1;
 int currentMode;
 //int pinLED = 0;
 //int pinModeSwitch = 1;
-int pinLED = 3;
+int pinLED = 0;
 int pinModeSwitch = 4;
 int modeChangeDelay = 750;
 
@@ -16,24 +16,25 @@ void setup() {
   
   pinMode(pinLED,OUTPUT);
   pinMode(pinModeSwitch,INPUT);
-  currentMode = modeSteady;
+  //currentMode = modeSteady;
+  currentMode = modeFlicker;
 }
 
 void loop() {
  activateMode(currentMode); 
   
- if (detectModeSwitchPressed()) {
-   
-   analogWrite(pinLED,0);
-   delay(modeChangeDelay);
-   
-   currentMode = getNewMode(currentMode);
-   activateMode(currentMode);
-   
-   
- } else {
-   
- }
+// if (detectModeSwitchPressed()) {
+//   
+//   analogWrite(pinLED,0);
+//   delay(modeChangeDelay);
+//   
+//   currentMode = getNewMode(currentMode);
+//   activateMode(currentMode);
+//   
+//   
+// } else {
+//   
+// }
 }
 
 boolean detectModeSwitchPressed() {

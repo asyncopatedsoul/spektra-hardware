@@ -1,27 +1,33 @@
 //#include <NewSoftSerial.h>
 
-int pinLedRed = A2;
-int pinLedYellow = A3;
-int pinLedGreen = A1;
+int pinLedRed = 0;
+int pinLedYellow = 1;
+int pinLedGreen = 2;
 
-int pinPressureSensor = A0;
+int pinPressureSensor = 3;
 
-int countPressureLevels = 4;
-int colorPressureLevels[4][2] = {
-{0,100},
-{101,200},
-{201,300},
-{301,400},
-
+int countPressureLevels = 8;
+int colorPressureLevels[8][2] = {
+{0,200},
+{201,230},
+{231,260},
+{261,290},
+{291,320},
+{321,350},
+{351,380},
+{381, 1000}
 };
 
 
-int colorRGBValues[4][3] = { 
-{255,255,255},
-{0,255,255}, //red
-{255,0,255}, //yellow
-{255,255,0} //green
-
+int colorRGBValues[8][4] = { 
+{255,255,255,255},
+{0, 255, 0, 255}, 
+{255, 255,0,0},
+{255, 0, 0, 0},
+{255, 0, 255, 0},
+{0,0,255,255},
+{255,255,255,0},
+{0,0,0, 255}
 };
 
 void setup() {
@@ -36,6 +42,7 @@ void setup() {
 
 void loop() {
   int pressureLevel = getPressureLevel();
+ //Serial.println(pressureLevel);
   setColor(pressureLevel);
 }
 
