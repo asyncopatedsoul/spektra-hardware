@@ -4,13 +4,13 @@ int pin_zero = 0;
 int pin_one = 1;
 int pin_two = 2;
 
-int pin_three = 3;
-int pin_four = 4;
-int pin_five = 5;
+int pin_three = 8;
+int pin_four = 9;
+int pin_five = 10;
 
-int pin_six = 6;
-int pin_seven = 7;
-int pin_eight = 8;
+int pin_six = 11;
+int pin_seven = 12;
+int pin_eight = 13;
 
 int pinPressureSensor = A3;
 
